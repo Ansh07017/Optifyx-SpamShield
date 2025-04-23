@@ -130,7 +130,7 @@ with st.sidebar:
         if st.session_state.metrics:
             st.divider()
             st.subheader("Model Performance")
-            metrics_df = pd.DataFrame(st.session_state.metrics)
+            metrics_df = pd.DataFrame(st.session_state.metrics).T  # Transpose to get model names as index
             best_model = metrics_df["F1 Score"].idxmax()
             best_f1 = metrics_df.loc[best_model, "F1 Score"]
             st.write(f"**Best model:** {best_model}")

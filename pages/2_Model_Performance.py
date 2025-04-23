@@ -30,7 +30,7 @@ if ('models' in st.session_state and st.session_state.models is not None and
     y_test = st.session_state.y_test
     
     # Convert metrics to dataframe
-    metrics_df = pd.DataFrame(metrics)
+    metrics_df = pd.DataFrame(metrics).T  # Transpose to get model names as index
     
     # Create tabs for different visualizations
     tab1, tab2, tab3 = st.tabs(["Model Comparison", "Confusion Matrices", "ROC Curves"])

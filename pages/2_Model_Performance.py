@@ -14,6 +14,32 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Custom CSS for consistent fonts and styling
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: #2c3e50;
+    }
+    
+    p, li, div {
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        font-size: 1.05rem;
+        line-height: 1.5;
+        color: #000000;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Header
 st.title("📈 Model Performance Analysis")
 st.write("Compare and analyze the performance of different machine learning models for spam detection")

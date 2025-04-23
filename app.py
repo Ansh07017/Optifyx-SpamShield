@@ -42,7 +42,7 @@ st.markdown("""
         font-weight: 400;
         font-size: 1.05rem;
         line-height: 1.5;
-        color: #333;
+        color: #000000;
     }
     
     .main-header {

@@ -1,31 +1,85 @@
-import nltk
 import re
 import numpy as np
 import pandas as pd
 import os
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from nltk.stem import PorterStemmer, WordNetLemmatizer
 
-# Download NLTK resources
+# Define a list of common English stopwords directly in the code to avoid NLTK dependency
+ENGLISH_STOPWORDS = set(['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 
+                      "you're", "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 
+                      'yourselves', 'he', 'him', 'his', 'himself', 'she', "she's", 'her', 
+                      'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them', 
+                      'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 
+                      'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are', 
+                      'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 
+                      'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 
+                      'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 
+                      'with', 'about', 'against', 'between', 'into', 'through', 'during', 
+                      'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 
+                      'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 
+                      'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 
+                      'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 
+                      'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 
+                      'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 
+                      "don't", 'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 
+                      've', 'y', 'ain', 'aren', "aren't", 'couldn', "couldn't", 'didn', 
+                      "didn't", 'doesn', "doesn't", 'hadn', "hadn't", 'hasn', "hasn't", 
+                      'haven', "haven't", 'isn', "isn't", 'ma', 'mightn', "mightn't", 
+                      'mustn', "mustn't", 'needn', "needn't", 'shan', "shan't", 'shouldn', 
+                      "shouldn't", 'wasn', "wasn't", 'weren', "weren't", 'won', "won't", 
+                      'wouldn', "wouldn't"])
+
+# Create a simple Porter Stemmer implementation
+class SimpleStemmer:
+    """A simple implementation of the Porter stemming algorithm."""
+    
+    def stem(self, word):
+        """Return the stem of a word."""
+        # This is a very simplified implementation
+        # Just handle some common endings
+        if len(word) > 3:
+            if word.endswith('ing'):
+                return word[:-3]
+            elif word.endswith('ed'):
+                return word[:-2]
+            elif word.endswith('ly'):
+                return word[:-2]
+            elif word.endswith('s'):
+                return word[:-1]
+        return word
+
+# Create a simple stemmer
+stemmer = SimpleStemmer()
+
 try:
+    # Try to import NLTK for better NLP functionality
+    import nltk
+    from nltk.stem import PorterStemmer
+    
     # Create NLTK data directory if it doesn't exist
     nltk_data_dir = os.path.join(os.path.expanduser('~'), 'nltk_data')
     os.makedirs(nltk_data_dir, exist_ok=True)
     
-    # Download required NLTK resources
-    nltk.download('stopwords', quiet=True, download_dir=nltk_data_dir)
-    nltk.download('wordnet', quiet=True, download_dir=nltk_data_dir)
-    nltk.download('punkt', quiet=True, download_dir=nltk_data_dir)
-    nltk.download('omw-1.4', quiet=True, download_dir=nltk_data_dir)
+    # Try to download stopwords resource
+    try:
+        nltk.download('stopwords', quiet=True, download_dir=nltk_data_dir)
+        from nltk.corpus import stopwords
+        ENGLISH_STOPWORDS = set(stopwords.words('english'))
+        print("Using NLTK stopwords")
+    except Exception as e:
+        print(f"Using built-in stopwords. NLTK stopwords unavailable: {str(e)}")
     
-    # Import after downloading
-    from nltk.corpus import stopwords
-    print("NLTK resources downloaded successfully")
-except Exception as e:
-    print(f"Error downloading NLTK resources: {str(e)}")
-    # Continue even if download fails
-    from nltk.corpus import stopwords
+    # Try to get a better stemmer
+    try:
+        stemmer = PorterStemmer()
+        print("Using NLTK PorterStemmer")
+    except Exception as e:
+        print(f"Using simplified stemmer. NLTK stemmer unavailable: {str(e)}")
+        
+    print("NLTK imported successfully")
+except ImportError:
+    print("NLTK import failed. Using simplified NLP features.")
 
 def preprocess_text(text, remove_stopwords=True, stemming=True, lemmatization=False):
     """
@@ -62,23 +116,27 @@ def preprocess_text(text, remove_stopwords=True, stemming=True, lemmatization=Fa
     # Remove special characters and punctuation
     text = re.sub(r'[^\w\s]', '', text)
     
-    # Tokenize the text
-    tokens = nltk.word_tokenize(text)
+    # Simple tokenization by splitting on whitespace to avoid NLTK word_tokenize issues
+    tokens = text.split()
     
     # Remove stopwords if specified
     if remove_stopwords:
-        stop_words = set(stopwords.words('english'))
-        tokens = [token for token in tokens if token not in stop_words]
+        # Use our predefined stopwords list
+        tokens = [token for token in tokens if token not in ENGLISH_STOPWORDS]
     
     # Apply stemming if specified
     if stemming:
-        stemmer = PorterStemmer()
+        # Use the stemmer that was defined earlier (either NLTK or our simple one)
         tokens = [stemmer.stem(token) for token in tokens]
     
     # Apply lemmatization if specified
+    # We'll skip lemmatization in our simplified version since it requires NLTK WordNet
+    # and just use stemming instead
     if lemmatization:
-        lemmatizer = WordNetLemmatizer()
-        tokens = [lemmatizer.lemmatize(token) for token in tokens]
+        print("Lemmatization requires NLTK WordNet - skipping")
+        # If lemmatization is requested but we don't have it, apply stemming instead
+        if not stemming:  # Only if stemming wasn't already applied
+            tokens = [stemmer.stem(token) for token in tokens]
     
     # Join tokens back into a single string
     processed_text = ' '.join(tokens)

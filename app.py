@@ -34,11 +34,25 @@ def display_header():
 def load_and_train_models():
     try:
         # Load the spam.csv file
+        st.info("Loading spam dataset...")
         df = pd.read_csv("attached_assets/spam.csv", encoding='latin-1')
         
-        # Rename columns for consistency
-        df = df[['v1', 'v2']]
-        df.columns = ['label', 'text']
+        # Process the data format
+        st.info("Processing dataset...")
+        # Keep only the first two columns (v1, v2) from the CSV file
+        # We can see from the screenshot that v1 contains 'ham'/'spam' labels and v2 contains the email text
+        if 'v1' in df.columns and 'v2' in df.columns:
+            df = df[['v1', 'v2']] 
+            # Rename columns for consistency in our code
+            df.columns = ['label', 'text']
+            st.success(f"Successfully loaded data with {df.shape[0]} rows")
+        else:
+            available_columns = ", ".join(df.columns)
+            raise ValueError(f"Required columns 'v1' and 'v2' not found in dataset. Available columns: {available_columns}")
+        
+        # Display the first few rows to verify the data format
+        st.write("First 5 rows of the dataset:")
+        st.dataframe(df.head())
         
         # Display dataset info
         st.write("### Dataset Information")
@@ -76,19 +90,26 @@ def load_and_train_models():
         
         # Preprocess the data
         st.write("### Preprocessing and Training Models...")
-        df['processed_text'] = df['text'].apply(lambda x: preprocess_text(x, True, True, False))
-        
-        # Vectorize the data
-        X, y, X_train, X_test, y_train, y_test, vectorizer = vectorize_data(
-            df, 
-            vectorizer_type="TF-IDF Vectorizer", 
-            test_size=0.2, 
-            random_state=42
-        )
-        
-        # Train the models
-        models_to_train = ["Naive Bayes", "SVM", "Random Forest", "Logistic Regression"]
-        models = train_models(X_train, y_train, models_to_train)
+        st.info("Preprocessing text data...")
+        try:
+            df['processed_text'] = df['text'].apply(lambda x: preprocess_text(x, True, True, False))
+            
+            # Vectorize the data
+            st.info("Vectorizing data...")
+            X, y, X_train, X_test, y_train, y_test, vectorizer = vectorize_data(
+                df, 
+                vectorizer_type="TF-IDF Vectorizer", 
+                test_size=0.2, 
+                random_state=42
+            )
+            
+            # Train the models
+            st.info("Training machine learning models...")
+            models_to_train = ["Naive Bayes", "SVM", "Random Forest", "Logistic Regression"]
+            models = train_models(X_train, y_train, models_to_train)
+        except Exception as e:
+            st.error(f"Error during preprocessing or training: {str(e)}")
+            raise e
         
         # Evaluate the models
         metrics = evaluate_models(models, X_test, y_test)

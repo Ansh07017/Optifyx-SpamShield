@@ -2,16 +2,30 @@ import nltk
 import re
 import numpy as np
 import pandas as pd
+import os
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 
 # Download NLTK resources
-nltk.download('stopwords', quiet=True)
-nltk.download('wordnet', quiet=True)
-nltk.download('punkt', quiet=True)
-nltk.download('omw-1.4', quiet=True)
+try:
+    # Create NLTK data directory if it doesn't exist
+    nltk_data_dir = os.path.join(os.path.expanduser('~'), 'nltk_data')
+    os.makedirs(nltk_data_dir, exist_ok=True)
+    
+    # Download required NLTK resources
+    nltk.download('stopwords', quiet=True, download_dir=nltk_data_dir)
+    nltk.download('wordnet', quiet=True, download_dir=nltk_data_dir)
+    nltk.download('punkt', quiet=True, download_dir=nltk_data_dir)
+    nltk.download('omw-1.4', quiet=True, download_dir=nltk_data_dir)
+    
+    # Import after downloading
+    from nltk.corpus import stopwords
+    print("NLTK resources downloaded successfully")
+except Exception as e:
+    print(f"Error downloading NLTK resources: {str(e)}")
+    # Continue even if download fails
+    from nltk.corpus import stopwords
 
 def preprocess_text(text, remove_stopwords=True, stemming=True, lemmatization=False):
     """

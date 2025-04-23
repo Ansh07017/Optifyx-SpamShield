@@ -15,14 +15,84 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Custom CSS for better UI
+st.markdown("""
+<style>
+    .main-header {
+        background: linear-gradient(90deg, #4ecdc4, #2c3e50);
+        padding: 10px 20px;
+        border-radius: 10px;
+        color: white !important;
+        text-align: center;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header-text {
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 10px;
+        border-top: 1px solid #ddd;
+        color: #666;
+        font-size: 0.8em;
+    }
+    .stButton button {
+        background-color: #4ecdc4;
+        color: white;
+        font-weight: bold;
+    }
+    .stButton button:hover {
+        background-color: #3dafa7;
+    }
+    .spam-alert {
+        background-color: #FFEBEE; 
+        border-left: 8px solid #F44336; 
+        padding: 15px; 
+        border-radius: 4px; 
+        margin: 10px 0;
+    }
+    .ham-alert {
+        background-color: #E8F5E9; 
+        border-left: 8px solid #4CAF50; 
+        padding: 15px; 
+        border-radius: 4px; 
+        margin: 10px 0;
+    }
+    .sidebar .stButton button {
+        width: 100%;
+    }
+    .stProgress > div > div > div > div {
+        background-color: #4ecdc4;
+    }
+    .stDataFrame {
+        padding: 10px;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Define logo and title
 def display_header():
+    st.markdown('<div class="main-header">', unsafe_allow_html=True)
     col1, col2 = st.columns([1, 5])
     with col1:
-        st.image("assets/shield_logo.svg", width=80)
+        st.image("assets/shield_logo.svg", width=100)
     with col2:
-        st.title("SpamShield: Email Spam Detection")
-        st.subheader("Protect your inbox from unwanted emails")
+        st.markdown('<h1 class="header-text">SpamShield: Email Spam Detection</h1>', unsafe_allow_html=True)
+        st.markdown('<h3 class="header-text">Protect your inbox from unwanted emails</h3>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Function to load data and train models - we'll use this across pages
 @st.cache_data
@@ -137,24 +207,12 @@ with st.sidebar:
             st.write(f"**F1 Score:** {best_f1:.4f}")
 
 # Main content - Email classification UI
-st.write("## 📧 Email Spam Classification")
+st.markdown("## 📧 Email Spam Classification")
 st.info("📌 Paste an email message below to check if it's spam or legitimate.")
 
 # Main classification interface in a styled card
 with st.container():
-    st.markdown(
-        """
-        <style>
-        .classification-container {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        </style>
-        """, 
-        unsafe_allow_html=True
-    )
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     
     # Example emails in expandable section
     with st.expander("Try with example emails"):
@@ -293,7 +351,12 @@ with st.container():
             st.warning("⚠️ Please enter some text to classify.")
     else:
         st.error("❌ Models are not available. Please check if the data loaded correctly in the sidebar.")
+    
+    # Close the card div
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Add footer
-st.write("---")
-st.caption("SpamShield - Email Spam Detection | Built with Streamlit and Machine Learning")
+st.markdown('<div class="footer">', unsafe_allow_html=True)
+st.markdown("**SpamShield** - Email Spam Detection | Built with Streamlit and Machine Learning")
+st.markdown('<p>© 2025 SpamShield | Protect your inbox like a boss</p>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)

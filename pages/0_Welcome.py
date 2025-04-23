@@ -11,6 +11,33 @@ st.set_page_config(
 # Custom CSS for better UI
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+        background-image: url("assets/backgrounds/shield_pattern.svg");
+        background-attachment: fixed;
+        background-size: cover;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: #2c3e50;
+    }
+    
+    p, li, div {
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        font-size: 1.05rem;
+        line-height: 1.5;
+        color: #333;
+    }
+    
     .main-header {
         background: linear-gradient(90deg, #4ecdc4, #2c3e50);
         padding: 20px;
@@ -19,31 +46,106 @@ st.markdown("""
         text-align: center;
         margin-bottom: 30px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
     }
+    
+    .main-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("assets/backgrounds/wave_pattern.svg");
+        background-size: cover;
+        opacity: 0.3;
+        z-index: 0;
+    }
+    
     .header-text {
         color: white !important;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 1;
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 0.02em;
     }
+    
     .feature-card {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
+        background-color: rgba(248, 249, 250, 0.95);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
         border-left: 5px solid #4ecdc4;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+    
     .feature-icon {
-        font-size: 2rem;
-        margin-bottom: 10px;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
         color: #4ecdc4;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
+    
     .footer {
         text-align: center;
         margin-top: 30px;
-        padding-top: 10px;
+        padding: 20px;
         border-top: 1px solid #ddd;
         color: #666;
-        font-size: 0.8em;
+        font-size: 0.9em;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    /* Better link styling */
+    a {
+        color: #4ecdc4;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    a:hover {
+        color: #3dafa7;
+        text-decoration: underline;
+    }
+    
+    /* Fix headers */
+    h1, h2, h3 {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
+    
+    /* Call to action styling */
+    .cta-container {
+        background-color: rgba(232, 245, 233, 0.9);
+        padding: 24px;
+        border-radius: 12px;
+        text-align: center;
+        margin-top: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-top: 4px solid #4CAF50;
+    }
+    
+    .cta-container h2 {
+        color: #2E7D32;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    
+    .cta-container p {
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.1rem;
+        margin-bottom: 12px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -104,9 +206,9 @@ with col2:
 
 # Call to action
 st.markdown("""
-<div style="background-color: #E8F5E9; padding: 20px; border-radius: 10px; text-align: center; margin-top: 20px;">
+<div class="cta-container">
     <h2>Ready to stop spam in its tracks?</h2>
-    <p style="font-size: 1.2rem;">Head to the home page and start classifying emails now!</p>
+    <p>Head to the home page and start classifying emails now!</p>
     <p>Use the sidebar navigation menu to explore all features of SpamShield.</p>
 </div>
 """, unsafe_allow_html=True)

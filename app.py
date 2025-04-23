@@ -18,6 +18,33 @@ st.set_page_config(
 # Custom CSS for better UI
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+        background-image: url("assets/backgrounds/shield_pattern.svg");
+        background-attachment: fixed;
+        background-size: cover;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: #2c3e50;
+    }
+    
+    p, li, div {
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        font-size: 1.05rem;
+        line-height: 1.5;
+        color: #333;
+    }
+    
     .main-header {
         background: linear-gradient(90deg, #4ecdc4, #2c3e50);
         padding: 10px 20px;
@@ -26,59 +53,170 @@ st.markdown("""
         text-align: center;
         margin-bottom: 20px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
     }
+    
+    .main-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("assets/backgrounds/wave_pattern.svg");
+        background-size: cover;
+        opacity: 0.3;
+        z-index: 0;
+    }
+    
     .header-text {
         color: white !important;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 1;
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 0.02em;
     }
+    
     .card {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
+        background-color: rgba(248, 249, 250, 0.95);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+        border-top: 4px solid #4ecdc4;
     }
+    
     .footer {
         text-align: center;
         margin-top: 30px;
-        padding-top: 10px;
+        padding: 20px;
         border-top: 1px solid #ddd;
         color: #666;
-        font-size: 0.8em;
+        font-size: 0.9em;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        font-family: 'Poppins', sans-serif;
     }
+    
     .stButton button {
         background-color: #4ecdc4;
         color: white;
-        font-weight: bold;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 0.03em;
+        border-radius: 6px;
+        padding: 0.5em 1em;
     }
+    
     .stButton button:hover {
         background-color: #3dafa7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+    
     .spam-alert {
         background-color: #FFEBEE; 
         border-left: 8px solid #F44336; 
-        padding: 15px; 
-        border-radius: 4px; 
-        margin: 10px 0;
+        padding: 18px; 
+        border-radius: 6px; 
+        margin: 12px 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        font-family: 'Roboto', sans-serif;
     }
+    
     .ham-alert {
         background-color: #E8F5E9; 
         border-left: 8px solid #4CAF50; 
-        padding: 15px; 
-        border-radius: 4px; 
-        margin: 10px 0;
+        padding: 18px; 
+        border-radius: 6px; 
+        margin: 12px 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        font-family: 'Roboto', sans-serif;
     }
+    
     .sidebar .stButton button {
         width: 100%;
     }
+    
     .stProgress > div > div > div > div {
         background-color: #4ecdc4;
     }
+    
     .stDataFrame {
-        padding: 10px;
+        padding: 12px;
         background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        font-family: 'Roboto', sans-serif;
+    }
+    
+    .stExpander {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+    }
+    
+    .stTextArea textarea {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-family: 'Roboto', sans-serif;
+        font-size: 1rem;
+        padding: 12px;
+    }
+    
+    .stTextArea textarea:focus {
+        border-color: #4ecdc4;
+        box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
+    }
+    
+    .st-emotion-cache-ue6h4q {
+        border-radius: 8px;
+    }
+    
+    .st-ae {
         border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Sidebar styling */
+    .css-1aumxhk {
+        background-color: rgba(248, 249, 250, 0.95);
+    }
+    
+    /* Improve select box styling */
+    .stSelectbox div div[data-baseweb="select"] > div {
+        background-color: white;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-family: 'Roboto', sans-serif;
+    }
+    
+    /* Improve metrics styling */
+    .css-zw5jk7 {
+        background-color: rgba(255, 255, 255, 0.6);
+        border-radius: 8px;
+        padding: 16px;
+        border: 1px solid #eee;
+    }
+    
+    /* Fix headers */
+    h1, h2, h3 {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
+    
+    /* Better link styling */
+    a {
+        color: #4ecdc4;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    a:hover {
+        color: #3dafa7;
+        text-decoration: underline;
     }
 </style>
 """, unsafe_allow_html=True)

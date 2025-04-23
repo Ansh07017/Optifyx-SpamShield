@@ -1,23 +1,18 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import plotly.express as px
-import time
-import base64
-from io import StringIO
 import os
 
 # Import custom modules
 from preprocessing import preprocess_text, vectorize_data
 from model_training import train_models
-from model_evaluation import evaluate_models, plot_confusion_matrices, plot_roc_curves
+from model_evaluation import evaluate_models
 
 # Page configuration
 st.set_page_config(
-    page_title="SpamShield - Email Spam Detection",
+    page_title="SpamShield - Email Detection",
     page_icon="🛡️",
     layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # Define logo and title
@@ -29,73 +24,27 @@ def display_header():
         st.title("SpamShield: Email Spam Detection")
         st.subheader("Protect your inbox from unwanted emails")
 
-# Function to load data and train models
+# Function to load data and train models - we'll use this across pages
 @st.cache_data
 def load_and_train_models():
     try:
         # Load the spam.csv file
-        st.info("Loading spam dataset...")
-        df = pd.read_csv("attached_assets/spam.csv", encoding='latin-1')
-        
-        # Process the data format
-        st.info("Processing dataset...")
-        # Keep only the first two columns (v1, v2) from the CSV file
-        # We can see from the screenshot that v1 contains 'ham'/'spam' labels and v2 contains the email text
-        if 'v1' in df.columns and 'v2' in df.columns:
-            df = df[['v1', 'v2']] 
-            # Rename columns for consistency in our code
-            df.columns = ['label', 'text']
-            st.success(f"Successfully loaded data with {df.shape[0]} rows")
-        else:
-            available_columns = ", ".join(df.columns)
-            raise ValueError(f"Required columns 'v1' and 'v2' not found in dataset. Available columns: {available_columns}")
-        
-        # Display the first few rows to verify the data format
-        st.write("First 5 rows of the dataset:")
-        st.dataframe(df.head())
-        
-        # Display dataset info
-        st.write("### Dataset Information")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total Emails", df.shape[0])
-        with col2:
-            spam_count = df[df['label'] == 'spam'].shape[0]
-            st.metric("Spam Emails", spam_count)
-        with col3:
-            ham_count = df[df['label'] == 'ham'].shape[0]
-            st.metric("Ham Emails", ham_count)
-        
-        # Display sample data
-        st.write("### Dataset Preview")
-        st.dataframe(df.head())
-        
-        # Data visualization
-        st.write("### Data Distribution")
-        fig = px.pie(values=[spam_count, ham_count], 
-                    names=['Spam', 'Ham'], 
-                    title="Distribution of Spam vs. Ham",
-                    color_discrete_sequence=['#ff6b6b', '#4ecdc4'])
-        st.plotly_chart(fig)
-        
-        # Email length analysis
-        st.write("### Email Length Analysis")
-        df['text_length'] = df['text'].apply(len)
-        fig = px.histogram(df, x='text_length', color='label',
-                         nbins=50, opacity=0.7,
-                         color_discrete_map={'spam': '#ff6b6b', 'ham': '#4ecdc4'},
-                         title="Distribution of Email Lengths by Class")
-        fig.update_layout(bargap=0.1)
-        st.plotly_chart(fig)
-        
-        # Preprocess the data
-        st.write("### Preprocessing and Training Models...")
-        st.info("Preprocessing text data...")
-        try:
+        with st.spinner("Loading and preprocessing data..."):
+            df = pd.read_csv("attached_assets/spam.csv", encoding='latin-1')
+            
+            # Process the data format
+            if 'v1' in df.columns and 'v2' in df.columns:
+                df = df[['v1', 'v2']] 
+                # Rename columns for consistency in our code
+                df.columns = ['label', 'text']
+            else:
+                available_columns = ", ".join(df.columns)
+                raise ValueError(f"Required columns 'v1' and 'v2' not found in dataset. Available columns: {available_columns}")
+            
+            # Preprocess text data
             df['processed_text'] = df['text'].apply(lambda x: preprocess_text(x, True, True, False))
             
             # Vectorize the data
-            st.info("Vectorizing data...")
             X, y, X_train, X_test, y_train, y_test, vectorizer = vectorize_data(
                 df, 
                 vectorizer_type="TF-IDF Vectorizer", 
@@ -103,49 +52,35 @@ def load_and_train_models():
                 random_state=42
             )
             
-            # Train the models
-            st.info("Training machine learning models...")
+        # Train the models
+        with st.spinner("Training machine learning models..."):
             models_to_train = ["Naive Bayes", "SVM", "Random Forest", "Logistic Regression"]
             models = train_models(X_train, y_train, models_to_train)
-        except Exception as e:
-            st.error(f"Error during preprocessing or training: {str(e)}")
-            raise e
-        
-        # Evaluate the models
-        metrics = evaluate_models(models, X_test, y_test)
-        
-        # Display metrics in a table
-        st.write("### Model Performance Metrics")
-        metrics_df = pd.DataFrame(metrics)
-        st.dataframe(metrics_df)
-        
-        # Create bar chart for model comparison
-        fig = px.bar(
-            metrics_df, 
-            barmode='group',
-            color_discrete_sequence=px.colors.qualitative.G10,
-            title="Performance Metrics Comparison"
-        )
-        st.plotly_chart(fig)
-        
-        # Display confusion matrices
-        st.write("### Confusion Matrices")
-        fig = plot_confusion_matrices(models, X_test, y_test)
-        st.pyplot(fig)
-        
-        # Display ROC curves
-        st.write("### ROC Curves")
-        fig = plot_roc_curves(models, X_test, y_test)
-        st.pyplot(fig)
-        
-        # Return results
-        return models, vectorizer, X_test, y_test, metrics
+            
+            # Evaluate models
+            metrics = evaluate_models(models, X_test, y_test)
+            
+            # Calculate basic statistics for sidebar
+            spam_count = df[df['label'] == 'spam'].shape[0]
+            ham_count = df[df['label'] == 'ham'].shape[0]
+            total_count = df.shape[0]
+            
+            # Store dataset for other pages
+            dataset_info = {
+                "df": df,
+                "spam_count": spam_count,
+                "ham_count": ham_count,
+                "total_count": total_count
+            }
+            
+            # Return everything needed for the application
+            return models, vectorizer, X_test, y_test, metrics, dataset_info
     
     except Exception as e:
         st.error(f"Error during data loading and model training: {str(e)}")
-        return None, None, None, None, None
+        return None, None, None, None, None, None
 
-# Initialize session state variables
+# Initialize session state for sharing data between pages
 if 'models' not in st.session_state:
     st.session_state.models = None
 if 'vectorizer' not in st.session_state:
@@ -156,73 +91,114 @@ if 'X_test' not in st.session_state:
     st.session_state.X_test = None
 if 'y_test' not in st.session_state:
     st.session_state.y_test = None
+if 'dataset_info' not in st.session_state:
+    st.session_state.dataset_info = None
+if 'email_text' not in st.session_state:
+    st.session_state.email_text = ""
 
-# Display header
+# Display page header
 display_header()
 
 # Load data and train models if not already done
 if st.session_state.models is None:
-    with st.spinner("Loading data and training models... This may take a minute or two."):
-        st.session_state.models, st.session_state.vectorizer, st.session_state.X_test, st.session_state.y_test, st.session_state.metrics = load_and_train_models()
+    st.session_state.models, st.session_state.vectorizer, st.session_state.X_test, st.session_state.y_test, st.session_state.metrics, st.session_state.dataset_info = load_and_train_models()
     
     if st.session_state.models is not None:
         st.success("✅ Models trained successfully!")
     else:
         st.error("❌ Failed to train models. Please check the data file.")
 
-# Add a separator
-st.write("---")
+# Sidebar with navigation and dataset stats
+with st.sidebar:
+    st.title("Navigation")
+    st.write("📧 [Home - Email Detector](./)")
+    st.write("📊 [Dataset Dashboard](./Dataset_Dashboard)")
+    st.write("📈 [Model Performance](./Model_Performance)")
+    
+    if st.session_state.dataset_info:
+        st.divider()
+        st.subheader("Dataset Statistics")
+        st.metric("Total Emails", st.session_state.dataset_info["total_count"])
+        
+        # Show spam/ham ratio using a simple text gauge
+        spam_perc = st.session_state.dataset_info["spam_count"] / st.session_state.dataset_info["total_count"] * 100
+        ham_perc = 100 - spam_perc
+        st.write(f"**Spam ratio:** {spam_perc:.1f}%")
+        st.progress(spam_perc/100)
+        
+        # If models are trained, show the best model by f1 score
+        if st.session_state.metrics:
+            st.divider()
+            st.subheader("Model Performance")
+            metrics_df = pd.DataFrame(st.session_state.metrics)
+            best_model = metrics_df["F1 Score"].idxmax()
+            best_f1 = metrics_df.loc[best_model, "F1 Score"]
+            st.write(f"**Best model:** {best_model}")
+            st.write(f"**F1 Score:** {best_f1:.4f}")
 
-# Email classification UI
+# Main content - Email classification UI
 st.write("## 📧 Email Spam Classification")
-st.write("Paste an email message below to check if it's spam or legitimate.")
+st.info("📌 Paste an email message below to check if it's spam or legitimate.")
 
-# Example emails in expandable section
-with st.expander("Try with example emails"):
-    col1, col2 = st.columns(2)
-    with col1:
-        st.write("**Example Spam Email:**")
-        example_spam = "URGENT: You have WON a $1,000 Walmart gift card. Go to http://claim-prize.com to claim now before it expires!"
-        st.text_area("Spam Example", example_spam, height=100, key="spam_example", disabled=True)
-        if st.button("Use Spam Example"):
-            st.session_state.email_text = example_spam
+# Main classification interface in a styled card
+with st.container():
+    st.markdown(
+        """
+        <style>
+        .classification-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        </style>
+        """, 
+        unsafe_allow_html=True
+    )
     
-    with col2:
-        st.write("**Example Legitimate Email:**")
-        example_ham = "Hi Sarah, just checking if we're still on for lunch tomorrow at 12:30pm? Let me know if you need to reschedule. Best, John"
-        st.text_area("Legitimate Example", example_ham, height=100, key="ham_example", disabled=True)
-        if st.button("Use Legitimate Example"):
-            st.session_state.email_text = example_ham
-
-# Initialize email text session state if not exists
-if 'email_text' not in st.session_state:
-    st.session_state.email_text = ""
-
-# Text input for classification
-user_input = st.text_area("Enter the email text to classify:", 
-                          height=150, 
-                          key="user_input",
-                          value=st.session_state.email_text)
-
-# Model selection for classification
-if st.session_state.models is not None:
-    model_options = list(st.session_state.models.keys())
+    # Example emails in expandable section
+    with st.expander("Try with example emails"):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("**Example Spam Email:**")
+            example_spam = "URGENT: You have WON a $1,000 Walmart gift card. Go to http://claim-prize.com to claim now before it expires!"
+            st.text_area("Spam Example", example_spam, height=100, key="spam_example", disabled=True)
+            if st.button("Use Spam Example"):
+                st.session_state.email_text = example_spam
+                st.rerun()
+        
+        with col2:
+            st.write("**Example Legitimate Email:**")
+            example_ham = "Hi Sarah, just checking if we're still on for lunch tomorrow at 12:30pm? Let me know if you need to reschedule. Best, John"
+            st.text_area("Legitimate Example", example_ham, height=100, key="ham_example", disabled=True)
+            if st.button("Use Legitimate Example"):
+                st.session_state.email_text = example_ham
+                st.rerun()
+    
+    # Text input area
+    user_input = st.text_area("Enter the email text to classify:", 
+                            height=150, 
+                            key="user_input",
+                            value=st.session_state.email_text)
+    
     col1, col2 = st.columns([3, 1])
-    
-    with col1:
-        model_name = st.selectbox(
-            "Select model for classification",
-            model_options,
-            index=2 if "Random Forest" in model_options else 0
-        )
-    
-    with col2:
-        st.write("")
-        st.write("")
-        classify_button = st.button("Classify Email", type="primary")
-    
-    if classify_button:
-        if user_input:
+    # Model selection
+    if st.session_state.models is not None:
+        model_options = list(st.session_state.models.keys())
+        
+        with col1:
+            model_name = st.selectbox(
+                "Select model for classification",
+                model_options,
+                index=2 if "Random Forest" in model_options else 0
+            )
+        
+        with col2:
+            st.write("")
+            classify_button = st.button("Classify Email", type="primary", use_container_width=True)
+        
+        # Classification logic
+        if classify_button and user_input:
             with st.spinner("Analyzing email..."):
                 try:
                     # Preprocess the input text
@@ -245,16 +221,26 @@ if st.session_state.models is not None:
                         confidence = 99  # Default if not available
                     
                     # Display result with animation
+                    st.divider()
                     st.subheader("Classification Result")
                     
+                    # Custom HTML/CSS for better result display
                     if prediction == 1:  # Spam
-                        with st.container():
-                            st.error(f"📛 **SPAM DETECTED!** This email is classified as spam with {confidence:.2f}% confidence.")
-                            st.warning("⚠️ This email appears to be spam and may be attempting to deceive you.")
+                        st.markdown(f"""
+                        <div style="background-color: #FFEBEE; border-left: 8px solid #F44336; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                            <h3 style="color: #D32F2F; margin:0;">📛 SPAM DETECTED!</h3>
+                            <p style="color: #D32F2F; font-size: 18px; margin: 8px 0;">Confidence: {confidence:.2f}%</p>
+                            <p>This email appears to be spam and may be attempting to deceive you.</p>
+                        </div>
+                        """, unsafe_allow_html=True)
                     else:  # Ham
-                        with st.container():
-                            st.success(f"✅ **LEGITIMATE EMAIL** This email is classified as legitimate with {confidence:.2f}% confidence.")
-                            st.info("💡 This email appears to be legitimate based on our analysis.")
+                        st.markdown(f"""
+                        <div style="background-color: #E8F5E9; border-left: 8px solid #4CAF50; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                            <h3 style="color: #2E7D32; margin:0;">✅ LEGITIMATE EMAIL</h3>
+                            <p style="color: #2E7D32; font-size: 18px; margin: 8px 0;">Confidence: {confidence:.2f}%</p>
+                            <p>This email appears to be legitimate based on our analysis.</p>
+                        </div>
+                        """, unsafe_allow_html=True)
                     
                     # Display explanation if using Random Forest
                     if model_name == "Random Forest":
@@ -278,19 +264,35 @@ if st.session_state.models is not None:
                             # Sort by importance
                             word_importances.sort(key=lambda x: x[1], reverse=True)
                             
-                            # Display top 5 important words
+                            # Display top words in a more visual way
                             if word_importances:
-                                for word, importance in word_importances[:5]:
-                                    st.write(f"- '{word}' (importance: {importance:.4f})")
+                                for i, (word, importance) in enumerate(word_importances[:5], 1):
+                                    st.markdown(f"""
+                                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                        <div style="width: 25px; text-align: center;">{i}</div>
+                                        <div style="width: 80px; text-align: left; font-weight: bold;">{word}</div>
+                                        <div style="flex-grow: 1; margin: 0 10px;">
+                                            <div style="background-color: #E0E0E0; height: 10px; border-radius: 5px; width: 100%;">
+                                                <div style="background-color: {'#F44336' if prediction == 1 else '#4CAF50'}; width: {min(importance*100, 100)}%; height: 10px; border-radius: 5px;"></div>
+                                            </div>
+                                        </div>
+                                        <div style="width: 70px; text-align: right;">{importance:.4f}</div>
+                                    </div>
+                                    """, unsafe_allow_html=True)
                             else:
                                 st.write("No specific words with high importance found in this message.")
                 
                 except Exception as e:
                     st.error(f"Error during classification: {str(e)}")
-        else:
-            st.warning("Please enter some text to classify.")
-else:
-    st.error("Models are not available. Please check if the data loaded correctly.")
+            
+            # Save the text for convenience
+            if user_input != st.session_state.email_text:
+                st.session_state.email_text = user_input
+        
+        elif classify_button:
+            st.warning("⚠️ Please enter some text to classify.")
+    else:
+        st.error("❌ Models are not available. Please check if the data loaded correctly in the sidebar.")
 
 # Add footer
 st.write("---")

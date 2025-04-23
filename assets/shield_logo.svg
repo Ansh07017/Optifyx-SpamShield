@@ -1,18 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <!-- Shield background -->
-  <path d="M50 5 L95 25 L95 50 C95 75 75 90 50 95 C25 90 5 75 5 50 L5 25 Z" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+  <!-- Shield base -->
+  <path d="M50,5 L85,15 C85,15 90,40 90,60 C90,80 50,95 50,95 C50,95 10,80 10,60 C10,40 15,15 15,15 L50,5 Z" fill="#4ecdc4" />
   
-  <!-- Shield inner area -->
-  <path d="M50 15 L85 30 L85 50 C85 70 70 80 50 85 C30 80 15 70 15 50 L15 30 Z" fill="#81C784" stroke="#2E7D32" stroke-width="0"/>
+  <!-- Shield gradient overlay -->
+  <path d="M50,5 L85,15 C85,15 90,40 90,60 C90,80 50,95 50,95 C50,95 10,80 10,60 C10,40 15,15 15,15 L50,5 Z" fill-opacity="0.3" fill="url(#shield-gradient)" />
   
-  <!-- Email icon -->
-  <rect x="30" y="40" width="40" height="25" rx="2" ry="2" fill="white" stroke="#2E7D32" stroke-width="1"/>
-  <path d="M30 40 L50 55 L70 40" fill="none" stroke="#2E7D32" stroke-width="1.5"/>
+  <!-- Shield border -->
+  <path d="M50,5 L85,15 C85,15 90,40 90,60 C90,80 50,95 50,95 C50,95 10,80 10,60 C10,40 15,15 15,15 L50,5 Z" fill="none" stroke="#2c3e50" stroke-width="2" />
   
-  <!-- Checkmark -->
-  <path d="M40 50 L45 55 L60 40" fill="none" stroke="#2E7D32" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Envelope symbol -->
+  <g transform="translate(30, 35) scale(0.4)">
+    <rect x="0" y="0" width="100" height="70" rx="5" ry="5" fill="#fff" stroke="#2c3e50" stroke-width="3" />
+    <path d="M0,0 L50,40 L100,0" transform="translate(0, 15)" fill="none" stroke="#2c3e50" stroke-width="3" />
+    <path d="M0,70 L35,35" fill="none" stroke="#2c3e50" stroke-width="3" />
+    <path d="M100,70 L65,35" fill="none" stroke="#2c3e50" stroke-width="3" />
+  </g>
   
-  <!-- Ban symbol for spam -->
-  <circle cx="70" cy="30" r="12" fill="#FF5252" stroke="#D32F2F" stroke-width="1"/>
-  <line x1="62" y1="22" x2="78" y2="38" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <!-- X mark for spam -->
+  <g transform="translate(45, 57)">
+    <circle cx="5" cy="5" r="15" fill="#ff6b6b" stroke="#2c3e50" stroke-width="1" />
+    <path d="M-5,-5 L15,15 M-5,15 L15,-5" transform="translate(0, 0)" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+  </g>
+  
+  <!-- Shield highlight -->
+  <path d="M20,15 C20,15 25,15 50,10 C75,15 80,15 80,15 C80,15 75,40 75,55 C75,70 50,85 50,85" fill="none" stroke="#fff" stroke-width="2" stroke-opacity="0.3" />
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="shield-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#2c3e50" stop-opacity="0.1" />
+    </linearGradient>
+  </defs>
 </svg>

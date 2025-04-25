@@ -43,3 +43,7 @@ This dataset is commonly used for binary classification tasks in NLP.
    ```bash
    git clone https://github.com/Ansh07017/Optifyx-SpamShield.git
    cd Optifyx-SpamShield
+2. pip install -r requirements.txt
+3. streamlit run app.py
+
+

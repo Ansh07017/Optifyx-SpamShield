@@ -46,4 +46,4 @@ This dataset is commonly used for binary classification tasks in NLP.
 2. pip install -r requirements.txt
 3. streamlit run app.py
 
-
+check the website on: https://myspamshield.streamlit.app/ 
